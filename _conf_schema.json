@@ -1,0 +1,199 @@
+{
+    "enabled": {
+        "description": "总开关",
+        "type": "bool",
+        "hint": "MiMo TTS 插件总开关，请先在小米 MiMo 开放平台获取 API Key 后再打开",
+        "default": false
+    },
+    "auto": {
+        "description": "自动合成配置",
+        "type": "object",
+        "hint": "LLM 回复时按概率自动触发 TTS，将文本转为语音发送",
+        "items": {
+            "only_llm_result": {
+                "description": "只处理 LLM 结果",
+                "type": "bool",
+                "hint": "只对 LLM 生成的回复进行 TTS。建议打开，避免对指令响应等非对话内容合成语音",
+                "default": true
+            },
+            "tts_prob": {
+                "description": "主动转语音发送的概率",
+                "type": "float",
+                "hint": "0=从不自动，1=每次都自动",
+                "slider": {
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01
+                },
+                "default": 0.1
+            },
+            "max_msg_len": {
+                "description": "文本长度限制",
+                "type": "int",
+                "hint": "超过此长度的文本不会被自动合成语音",
+                "slider": {
+                    "min": 0,
+                    "max": 500,
+                    "step": 1
+                },
+                "default": 150
+            },
+            "style_prompt": {
+                "description": "默认风格提示",
+                "type": "text",
+                "hint": "注入到 user 消息中的自然语言风格指令，可描述语气、情绪、语速等。支持简短描述、复杂描述或导演模式（角色/场景/指导）。例：'语气自然，像一个会聊天的私人助手' 或 '慵懒随意，像在跟老朋友聊天'",
+                "default": "语气自然，像一个会聊天的私人助手"
+            }
+        }
+    },
+    "client": {
+        "description": "API 配置",
+        "type": "object",
+        "hint": "MiMo API 连接参数",
+        "items": {
+            "api_key": {
+                "description": "MiMo API Key",
+                "type": "string",
+                "hint": "必填！在 https://platform.xiaomimimo.com 注册获取",
+                "default": ""
+            },
+            "base_url": {
+                "description": "API 地址",
+                "type": "string",
+                "hint": "通常不需要修改",
+                "default": "https://api.xiaomimimo.com/v1"
+            },
+            "timeout": {
+                "description": "请求超时时间（秒）",
+                "type": "int",
+                "hint": "",
+                "slider": {
+                    "min": 10,
+                    "max": 120,
+                    "step": 1
+                },
+                "default": 30
+            }
+        }
+    },
+    "model": {
+        "description": "模型与音色配置",
+        "type": "object",
+        "hint": "选择 MiMo TTS 模型和音色",
+        "items": {
+            "model": {
+                "description": "TTS 模型",
+                "type": "string",
+                "hint": "mimo-v2.5-tts: 精品合成(9音色,支持唱歌) | mimo-v2.5-tts-voicedesign: 文字设计音色 | mimo-v2.5-tts-voiceclone: 音频克隆音色。注: mimo-v2-tts 已于 2026/6 下线，不再提供",
+                "options": [
+                    "mimo-v2.5-tts",
+                    "mimo-v2.5-tts-voicedesign",
+                    "mimo-v2.5-tts-voiceclone"
+                ],
+                "labels": [
+                    "V2.5-TTS (精品)",
+                    "VoiceDesign (文字设计)",
+                    "VoiceClone (音频克隆)"
+                ],
+                "default": "mimo-v2.5-tts"
+            },
+            "voice": {
+                "description": "音色",
+                "type": "string",
+                "hint": "V2.5 精品音色: mimo_default(默认,中国集群=冰糖) / 冰糖 / 茉莉 / 苏打 / 白桦 / Mia / Chloe / Milo / Dean | VoiceDesign 模式无需填写 | VoiceClone 模式可填 data URI 或留空用参考音频",
+                "default": "mimo_default"
+            },
+            "format": {
+                "description": "输出音频格式",
+                "type": "string",
+                "hint": "",
+                "options": [
+                    "mp3",
+                    "wav",
+                    "pcm16"
+                ],
+                "labels": [
+                    "MP3",
+                    "WAV",
+                    "PCM16"
+                ],
+                "default": "mp3"
+            }
+        }
+    },
+    "clone": {
+        "description": "音色克隆配置（仅 VoiceClone 模型生效）",
+        "type": "object",
+        "hint": "上传参考音频以复刻目标音色",
+        "items": {
+            "voice_sample_path": {
+                "description": "参考音频文件路径",
+                "type": "string",
+                "hint": "支持 mp3/wav，几秒钟即可。将自动转为 Base64 data URI 发送。请使用 '/' 分隔路径",
+                "default": ""
+            }
+        }
+    },
+    "design": {
+        "description": "音色设计配置（仅 VoiceDesign 模型生效）",
+        "type": "object",
+        "hint": "用文字描述生成全新音色，无需参考音频",
+        "items": {
+            "voice_design_prompt": {
+                "description": "音色描述文本",
+                "type": "string",
+                "hint": "例: '一位年迈的东欧学者，低沉略带嘶哑，语速缓慢' 或 '元气满满的少女，声线清脆'",
+                "default": ""
+            },
+            "optimize_text_preview": {
+                "description": "智能润色播报文本",
+                "type": "bool",
+                "hint": "开启后 MiMo 会自动优化 assistant 文本使其更贴合音色设计，此时可不提供 assistant 消息",
+                "default": false
+            }
+        }
+    },
+    "cache": {
+        "description": "缓存配置",
+        "type": "object",
+        "hint": "相同参数合成过的音频直接复用本地文件，避免重复调用 API",
+        "items": {
+            "enabled": {
+                "description": "启用语音缓存",
+                "type": "bool",
+                "hint": "开启后，相同文本+相同参数不再重复请求 MiMo API",
+                "default": true
+            },
+            "expire_hours": {
+                "description": "缓存过期时间（小时）",
+                "type": "int",
+                "hint": "0 表示永不过期",
+                "slider": {
+                    "min": 0,
+                    "max": 720,
+                    "step": 1
+                },
+                "default": 24
+            },
+            "path": {
+                "description": "缓存路径",
+                "type": "string",
+                "hint": "留空默认使用 data/plugins_data/astrbot_plugin_mimo_tts/audio",
+                "default": ""
+            }
+        }
+    },
+    "tool": {
+        "description": "LLM 工具配置",
+        "type": "object",
+        "hint": "控制 mimo_tts 工具的描述和行为，影响 LLM 调用工具的频率和效果",
+        "items": {
+            "usage_guide": {
+                "description": "工具调用指引",
+                "type": "text",
+                "hint": "这段文字会注入到 mimo_tts 工具的描述中，用于引导 LLM 何时调用。可以自定义调用频率、场景等。留空则使用默认指引",
+                "default": "调用时机：1) 用户明确要求语音回复时 2) 回复较短(1-3句)且情感表达丰富时 3) 角色扮演或情绪化对话中。不要在以下场景调用：长文本、代码、列表、技术性回答、用户没有语音需求时。重要：每次对话只需调用一次，调用成功后立即停止，不要重复调用。"
+            }
+        }
+    }
+}

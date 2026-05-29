@@ -1,0 +1,14 @@
+name: astrbot_plugin_mimo_tts
+display_name: MiMo TTS
+desc: 对接小米MiMo API，为AstrBot提供文本转语音(TTS)服务，支持预置音色/音色设计/音色克隆
+help: |
+  MiMo TTS 插件，使用小米 MiMo API 进行语音合成。
+  支持四种模型：基础合成(V2-TTS)、精品音色(V2.5-TTS)、音色设计(VoiceDesign)、音色克隆(VoiceClone)。
+  
+  使用方式：
+  - 自动模式：LLM回复时按概率触发TTS
+  - 手动指令：/mimo说 <内容>
+  - LLM工具：模型可主动调用 mimo_tts 工具发送语音
+version: v0.1.2
+author: Soulfish
+repo: https://github.com/Soulfish/astrbot_plugin_mimo_tts
